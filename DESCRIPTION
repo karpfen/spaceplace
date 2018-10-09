@@ -6,6 +6,7 @@ Author: Andreas Petutschnig
 Maintainer: Andreas Petutschnig <andreas@petutschnig.de>
 Description: Seach for patterns of place in space.
 Imports:
+    digest,
     osmdata,
     sf
 License: GPL-3
