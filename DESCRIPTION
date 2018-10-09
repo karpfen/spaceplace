@@ -1,0 +1,10 @@
+Package: spaceplace
+Type: Package
+Title: Function-Based Search of Space
+Version: 0.1.0
+Author: Andreas Petutschnig
+Maintainer: Andreas Petutschnig <andreas@petutschnig.de>
+Description: Seach for patterns of place in space.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
