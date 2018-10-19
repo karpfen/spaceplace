@@ -7,6 +7,7 @@
 #' @param geom_type OSM geometry type.
 #' @param key OSM key to download.
 #' @param value OSM value to download.
+#' @param timeout (optional) overpass timeout time in seconds.
 #'
 #' @return \code{sf} object of downloaded data.
 #'
@@ -23,9 +24,9 @@
 #'
 #' bus_stops <- osm_to_sf (bb, crs, geom_type, key, value)
 #' }
-osm_to_sf <- function (bbox, crs, geom_type, key, value)
+osm_to_sf <- function (bbox, crs, geom_type, key, value, timeout = 25)
 {
-  feat <- osmdata::opq (bbox = bbox)
+  feat <- osmdata::opq (bbox = bbox, timeout = timeout)
   if (missing (value))
   {
     feat <- osmdata::add_osm_feature (feat, key = key)
@@ -50,6 +51,7 @@ osm_to_sf <- function (bbox, crs, geom_type, key, value)
 #' @param key OSM key to download.
 #' @param value OSM value to download.
 #' @param clip_by_outline (optional) city name based on which the outline should be cut.
+#' @param timeout (optional) overpass timeout time in seconds.
 #'
 #' @return \code{sf} object of downloaded data.
 #'
@@ -67,7 +69,8 @@ osm_to_sf <- function (bbox, crs, geom_type, key, value)
 #'
 #' bus_stops <- load_osm_data (bb, crs, geom_type, key, value, clip_by)
 #' }
-load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline)
+load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline,
+                           timeout = 25)
 {
   fname <- paste0 (digest::digest (paste0 (c (bbox, crs, geom_type, key, value),
                                    collapse = ","), algo = "murmur32"), ".gpkg")
@@ -77,7 +80,7 @@ load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline)
   dat <- NA
   if (!fname %in% dir())
   {
-    dat <- osm_to_sf(bbox, crs, geom_type, key, value)
+    dat <- osm_to_sf(bbox, crs, geom_type, key, value, timeout)
     dat <- dat [c ("name", "geometry")]
     sf::st_write (dat, layer = lyr, fname)
   }

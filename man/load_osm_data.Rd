@@ -4,7 +4,8 @@
 \alias{load_osm_data}
 \title{Download OSM data, store it and and return as sf object}
 \usage{
-load_osm_data(bbox, crs, geom_type, key, value, clip_by_outline)
+load_osm_data(bbox, crs, geom_type, key, value, clip_by_outline,
+  timeout = 25)
 }
 \arguments{
 \item{bbox}{\code{vector} of corner coordinates of the area to download.}
@@ -18,6 +19,8 @@ load_osm_data(bbox, crs, geom_type, key, value, clip_by_outline)
 \item{value}{OSM value to download.}
 
 \item{clip_by_outline}{(optional) city name based on which the outline should be cut.}
+
+\item{timeout}{(optional) overpass timeout time in seconds.}
 }
 \value{
 \code{sf} object of downloaded data.

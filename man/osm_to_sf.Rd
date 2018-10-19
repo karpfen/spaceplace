@@ -4,7 +4,7 @@
 \alias{osm_to_sf}
 \title{Download OSM data and return as sf object}
 \usage{
-osm_to_sf(bbox, crs, geom_type, key, value)
+osm_to_sf(bbox, crs, geom_type, key, value, timeout = 25)
 }
 \arguments{
 \item{bbox}{\code{vector} of corner coordinates of the area to download.}
@@ -16,6 +16,8 @@ osm_to_sf(bbox, crs, geom_type, key, value)
 \item{key}{OSM key to download.}
 
 \item{value}{OSM value to download.}
+
+\item{timeout}{(optional) overpass timeout time in seconds.}
 }
 \value{
 \code{sf} object of downloaded data.
