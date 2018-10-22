@@ -72,8 +72,8 @@ osm_to_sf <- function (bbox, crs, geom_type, key, value, timeout = 25)
 load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline,
                            timeout = 25)
 {
-  fname <- paste0 (digest::digest (paste0 (c (bbox, crs, geom_type, key, value),
-                                   collapse = ","), algo = "murmur32"), ".gpkg")
+  fname <- paste0 (paste (c (crs, geom_type, key, value), collapse = "-"),
+                   ".gpkg")
 
   lyr <- paste (key, value, sep = " - ")
 
