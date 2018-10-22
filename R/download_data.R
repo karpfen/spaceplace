@@ -94,6 +94,69 @@ load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline,
   }
   return (dat)
 }
+#' Download OSM data with multiple values, combine and store them, and and
+#' return as sf object
+#'
+#' Wrapper function for osm_to_sf that creates a unique file name from the
+#' passed parameters, downloads the requested data if necessary and returns the
+#' resulting sf object.
+#'
+#' @param bbox \code{vector} of corner coordinates of the area to download.
+#' @param crs output coordinate reference system.
+#' @param geom_type OSM geometry type.
+#' @param keys vector of OSM keys to download.
+#' @param values vector of OSM values to download.
+#' @param group group name for the downloaded data.
+#' @param clip_by_outline (optional) city name based on which the outline should be cut.
+#' @param timeout (optional) overpass timeout time in seconds.
+#'
+#' @return \code{sf} object of downloaded data.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # London
+#' bb <- c (-0.90, 51.30, 0.0, 51.40)
+#' crs <- 32630
+#' geom_type <- "osm_points"
+#' key <- "amenity"
+#' values <- c ("atm", "bank")
+#' group_name <- "finance"
+#' clip_by <- "London"
+#'
+#' finance_london <- load_osm_value_groups (bb, crs, geom_type, key, values,
+#'                                          group_name, clip_by)
+#' }
+load_osm_value_groups <- function (bbox, crs, geom_type, keys, values, group,
+                                   clip_by_outline, timeout = 25)
+{
+  fname <- paste0 (paste (c (crs, key), collapse = "-"), ".gpkg")
+
+  for (key in keys)
+  {
+    for (value in values)
+    {
+      dat <- load_osm_data (bbox, crs, geom_type, key, value, clip_by_outline,
+                            timeout)
+      lyrname <- paste (c (group, value), collapse = " - ")
+      append <- TRUE
+      if (fname %in% dir ())
+      {
+        layers <- rgdal::ogrListLayers(fname)
+        if (lyrname %in% layers)
+          append <- FALSE
+      }
+      if (append)
+      {
+        sf::st_write(dat, fname, layer = lyrname, update = TRUE,
+                     layer_options = c ("OVERWRITE=yes"))
+      }
+    }
+  }
+  dat <- sf::read_sf(fname)
+  return (dat)
+}
 
 #' Download city outline from OSM and return as sf object
 #'

@@ -2,4 +2,5 @@
 
 export(get_city_outline)
 export(load_osm_data)
+export(load_osm_value_groups)
 export(osm_to_sf)
