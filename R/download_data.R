@@ -34,7 +34,10 @@ osm_to_sf <- function (bbox, crs, geom_type, key, value, timeout = 25)
     feat <- osmdata::add_osm_feature (feat, key = key, value = value)
   }
 
-  feat <- sf::st_transform (sf::st_as_sf (osmdata::osmdata_sf(feat) [[geom_type]]), crs)
+  dat <- osmdata::osmdata_sf(feat) [[geom_type]]
+  feat <- NULL
+  if (dim (dat) [1] > 0)
+    feat <- sf::st_transform (sf::st_as_sf (dat), crs)
 
   return (feat)
 }
@@ -81,6 +84,8 @@ load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline,
   if (!fname %in% dir())
   {
     dat <- osm_to_sf(bbox, crs, geom_type, key, value, timeout)
+    if (is.null(dat))
+      return (NULL)
     dat <- dat [c ("name", "geometry")]
     sf::st_write (dat, layer = lyr, fname)
   }
@@ -139,6 +144,9 @@ load_osm_value_groups <- function (bbox, crs, geom_type, keys, values, group,
     {
       dat <- load_osm_data (bbox, crs, geom_type, key, value, clip_by_outline,
                             timeout)
+      if (is.null(dat))
+        next
+
       lyrname <- paste (c (group, value), collapse = " - ")
       append <- TRUE
       if (fname %in% dir ())
