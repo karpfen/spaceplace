@@ -86,7 +86,13 @@ load_osm_data <- function (bbox, crs, geom_type, key, value, clip_by_outline,
     dat <- osm_to_sf(bbox, crs, geom_type, key, value, timeout)
     if (is.null(dat))
       return (NULL)
-    dat <- dat [c ("name", "geometry")]
+    if ("name" %in% names (dat))
+    {
+      dat <- dat [c ("name", "geometry")]
+    } else
+    {
+      dat <- dat ["geometry"]
+    }
     sf::st_write (dat, layer = lyr, fname)
   }
   dat <- sf::read_sf(fname)
