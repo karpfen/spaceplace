@@ -34,12 +34,53 @@ osm_to_sf <- function (bbox, crs, geom_type, key, value, timeout = 25)
     feat <- osmdata::add_osm_feature (feat, key = key, value = value)
   }
 
-  dat <- osmdata::osmdata_sf(feat) [[geom_type]]
-  feat <- NULL
-  if (dim (dat) [1] > 0)
-    feat <- sf::st_transform (sf::st_as_sf (dat), crs)
+  feat_out <- NULL
+  if (geom_type != "osm_points")
+  {
+    dat <- osmdata::osmdata_sf(feat) [[geom_type]]
+    if (dim (dat) [1] > 0)
+      feat_out <- sf::st_transform (sf::st_as_sf (dat), crs)
+  } else
+  {
+    dat_pts <- osmdata::osmdata_sf(feat) [["osm_points"]]
+    dat_poly <- osmdata::osmdata_sf(feat) [["osm_polygons"]]
 
-  return (feat)
+    mergepts <- FALSE
+    if (dim (dat_pts) [1] > 0)
+    {
+      dat_pts <- sf::st_transform (sf::st_as_sf (dat_pts), crs)
+      feat_out <- dat_pts
+    } else {
+      return (feat_out)
+    }
+
+    if (dim (dat_poly) [1] > 0)
+    {
+      dat_poly <- sf::st_transform (sf::st_as_sf (dat_poly), crs)
+      mergepts <- TRUE
+    }
+
+    if (mergepts)
+    {
+      dups <- sf::st_intersects(dat_pts$geometry, dat_poly$geometry)
+      keep <- apply (dups, 1, any)
+      dat_pts <- dat_pts [keep, ]
+      cents <- sf::st_centroid(dat_poly$geometry)
+      dat_poly <- sf::st_set_geometry (dat_poly, cents)
+
+       if ("name" %in% names (dat_pts) & "name" %in% names (dat_poly))
+       {
+         dat_pts <- dat_pts [c ("name", "geometry")]
+         dat_poly <- dat_poly [c ("name", "geometry")]
+       } else {
+         dat_pts <- dat_pts ["geometry"]
+         dat_poly <- dat_poly ["geometry"]
+       }
+      feat_out <- rbind (dat_pts, dat_poly)
+    }
+  }
+
+  return (feat_out)
 }
 
 #' Download OSM data, store it and and return as sf object
